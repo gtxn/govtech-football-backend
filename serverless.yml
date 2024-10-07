@@ -1,0 +1,100 @@
+# "org" ensures this Service is used with the correct Serverless Framework Access Key.
+org: gtxn03
+# "service" is the name of this project. This will also be added to your AWS resource names.
+service: govtech-tap-backend
+
+provider:
+  name: aws
+  runtime: nodejs20.x
+  iamRoleStatements:
+    - Effect: Allow
+      Action: "*"
+      Resource: "*"
+  environment:
+    TEAM_DYNAMODB_TABLE: teamsTable
+  httpApi:
+    cors: true
+    authorizers:
+      cognitoAuthorizer:
+        type: cognito
+        identitySource: '$request.header.Authorization'
+        issuerUrl: 
+          Fn::Sub: 'https://cognito-idp.${AWS::Region}.amazonaws.com/${CognitoUserPool}'
+        userPoolArn: 
+          !GetAtt CognitoUserPool.Arn 
+        audience:
+          - !Ref CognitoUserPoolClient
+
+functions:
+  health:
+    handler: functions/health.handler
+    events:
+      - httpApi:
+          path: /health
+          method: get
+          authorizer: cognitoAuthorizer
+  newTeams:
+    handler: functions/newTeams.handler
+    events:
+      - httpApi:
+          path: /newTeams
+          method: post
+          authorizer: cognitoAuthorizer
+  overwriteTeam:
+    handler: functions/overwriteTeam.handler
+    events:
+      - httpApi:
+          path: /overwriteTeam
+          method: post
+          authorizer: cognitoAuthorizer
+  getTeamsBySessionId:
+    handler: functions/getTeamsBySession.handler
+    events:
+      - httpApi:
+          path: /getTeamsBySession
+          method: get
+          authorizer: cognitoAuthorizer
+
+resources:
+  Resources:
+    TeamsDynamoDbTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: teamsTable
+        BillingMode: PAY_PER_REQUEST
+        AttributeDefinitions:
+          - AttributeName: session_id
+            AttributeType: S
+          - AttributeName: team_id
+            AttributeType: S
+        KeySchema:
+          - AttributeName: session_id
+            KeyType: HASH
+          - AttributeName: team_id
+            KeyType: RANGE
+
+    CognitoUserPool:
+      Type: AWS::Cognito::UserPool
+      Properties:
+        UserPoolName: TapAssessmentUserPool
+        AutoVerifiedAttributes:
+          - email  # Automatically verify users' email addresses
+        UsernameAttributes:
+          - email  # Allow users to sign up with their email
+        Policies:
+          PasswordPolicy:
+            MinimumLength: 8
+            RequireUppercase: true
+            RequireLowercase: true
+            RequireNumbers: true
+            RequireSymbols: false
+
+    CognitoUserPoolClient:
+      Type: AWS::Cognito::UserPoolClient
+      Properties:
+        UserPoolId: !Ref CognitoUserPool
+        ClientName: TapAssessmentUserPoolClient
+        GenerateSecret: false  # Set to true if you want a client secret, false for public client
+        AllowedOAuthFlowsUserPoolClient: false
+        SupportedIdentityProviders:
+          - COGNITO
