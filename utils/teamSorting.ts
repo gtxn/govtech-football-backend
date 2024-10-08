@@ -10,6 +10,7 @@ const teamArrToTeamObj = (teams: Array<Team>) => {
       num_losses: 0,
       num_draws: 0,
       total_goals: 0,
+      match_history: [],
     };
   });
 
@@ -27,6 +28,8 @@ export const updateTeamsBasedOnMatches = (
   // Convert array to an object for more efficient algorithm
   let teamsObj = teamArrToTeamObj(teams);
   let teamsObjTmp = { ...teamsObj };
+
+  console.log(matches);
 
   // Go through each match and update the teams status accordingly
   matches.forEach(({ team1_name, team2_name, team1_goals, team2_goals }) => {
@@ -64,6 +67,8 @@ export const updateTeamsBasedOnMatches = (
       teamsObjTmp[team2_name].num_draws += 1;
     }
   });
+
+  console.log(teamsObjTmp);
 
   // Convert object back to array
   return teamObjToTeamArray(teamsObjTmp);

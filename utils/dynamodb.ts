@@ -52,7 +52,6 @@ export const getTeamsBySessionId = async (session_id: string) => {
   });
 
   const response = await docClient.send(command);
-  console.log(response);
   return response?.Items ? response.Items?.map((item) => unmarshall(item)) : [];
 };
 
@@ -76,6 +75,5 @@ export const clearTeamsFromTableBySessionId = async (session_id: string) => {
     })
   );
 
-  console.log(r);
   return r;
 };
