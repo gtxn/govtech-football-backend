@@ -16,22 +16,16 @@ export const handler = async (event: any) => {
     // Check validity of teams
     checkTeamsValid(teamsToAdd);
 
-    // Add teams
-    let sessionId = uuidv4();
-
     // Only allow putting of team information, NOT match details
     let resp = await Promise.all(
       teamsToAdd.map((team: Team) =>
-        putIntoTeamTable(
-          {
-            session_id: team.session_id,
-            team_id: team.team_id,
-            team_name: team.team_name,
-            group_number: team.group_number,
-            date_registered: team.date_registered,
-          },
-          sessionId
-        )
+        putIntoTeamTable({
+          session_id: team.session_id,
+          team_id: team.team_id,
+          team_name: team.team_name,
+          group_number: team.group_number,
+          date_registered: team.date_registered,
+        })
       )
     );
 
@@ -39,7 +33,6 @@ export const handler = async (event: any) => {
       statusCode: 200,
       body: JSON.stringify({
         success: true,
-        sessionId,
         data: resp,
       }),
     };

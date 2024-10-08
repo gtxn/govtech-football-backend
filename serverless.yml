@@ -40,6 +40,13 @@ functions:
           path: /newTeams
           method: post
           authorizer: cognitoAuthorizer
+  updateTeams:
+    handler: functions/updateTeams.handler
+    events:
+      - httpApi:
+          path: /updateTeams
+          method: post
+          authorizer: cognitoAuthorizer
   overwriteTeam:
     handler: functions/overwriteTeam.handler
     events:
@@ -53,6 +60,13 @@ functions:
       - httpApi:
           path: /getTeamsBySession
           method: get
+          authorizer: cognitoAuthorizer
+  clearTeamsBySessionId:
+    handler: functions/clearTeamsBySessionId.handler
+    events:
+      - httpApi:
+          path: /clearTeamsBySession
+          method: post
           authorizer: cognitoAuthorizer
 
 resources:

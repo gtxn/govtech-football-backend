@@ -1,5 +1,9 @@
 import { DynamoDBClient, QueryCommand } from "@aws-sdk/client-dynamodb";
-import { PutCommand, DynamoDBDocumentClient } from "@aws-sdk/lib-dynamodb";
+import {
+  PutCommand,
+  DynamoDBDocumentClient,
+  DeleteCommand,
+} from "@aws-sdk/lib-dynamodb";
 import { unmarshall } from "@aws-sdk/util-dynamodb";
 import { v4 as uuidv4 } from "uuid";
 
@@ -15,7 +19,6 @@ export const putIntoTeamTable = async (teamItem: Team, sessionId?: string) => {
     TableName: tablename,
     Item: {
       ...teamItem,
-      team_id: uuidv4(),
     },
   };
 
@@ -25,6 +28,13 @@ export const putIntoTeamTable = async (teamItem: Team, sessionId?: string) => {
       session_id: sessionId,
     };
   }
+  if (!teamItem?.team_id) {
+    params.Item = {
+      ...params.Item,
+      team_id: uuidv4(),
+    };
+  }
+
   const command = new PutCommand(params);
 
   const response = await docClient.send(command);
@@ -32,7 +42,7 @@ export const putIntoTeamTable = async (teamItem: Team, sessionId?: string) => {
   return response;
 };
 
-export const getTeamsBySessionId = async (session_id) => {
+export const getTeamsBySessionId = async (session_id: string) => {
   const tablename = process.env.TEAM_DYNAMODB_TABLE;
 
   const command = new QueryCommand({
@@ -44,4 +54,28 @@ export const getTeamsBySessionId = async (session_id) => {
   const response = await docClient.send(command);
   console.log(response);
   return response?.Items ? response.Items?.map((item) => unmarshall(item)) : [];
+};
+
+export const clearTeamsFromTableBySessionId = async (session_id: string) => {
+  const tablename = process.env.TEAM_DYNAMODB_TABLE;
+
+  let teams = await getTeamsBySessionId(session_id);
+
+  let r = Promise.all(
+    teams.map(async (team) => {
+      const command = new DeleteCommand({
+        TableName: tablename,
+        Key: {
+          session_id: team.session_id,
+          team_id: team.team_id,
+        },
+      });
+
+      const response = await docClient.send(command);
+      return response;
+    })
+  );
+
+  console.log(r);
+  return r;
 };
