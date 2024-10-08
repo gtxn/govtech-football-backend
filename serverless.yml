@@ -47,6 +47,13 @@ functions:
           path: /updateTeams
           method: post
           authorizer: cognitoAuthorizer
+  updateTeamsByMatches:
+    handler: functions/updateTeamsByMatches.handler
+    events:
+      - httpApi:
+          path: /updateTeamsByMatches
+          method: post
+          authorizer: cognitoAuthorizer
   overwriteTeam:
     handler: functions/overwriteTeam.handler
     events:

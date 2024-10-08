@@ -16,3 +16,10 @@ export interface Match {
   goals_scored: number;
   goals_opponent_scored: number;
 }
+
+export interface Match2Player {
+  team1_name: string;
+  team2_name: string;
+  team1_goals: number;
+  team2_goals: number;
+}

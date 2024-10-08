@@ -61,7 +61,7 @@ export const clearTeamsFromTableBySessionId = async (session_id: string) => {
 
   let teams = await getTeamsBySessionId(session_id);
 
-  let r = Promise.all(
+  let r = await Promise.all(
     teams.map(async (team) => {
       const command = new DeleteCommand({
         TableName: tablename,
