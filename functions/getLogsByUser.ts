@@ -1,4 +1,4 @@
-import { createLog, getTeamsBySessionId } from "../utils/dynamodb";
+import { getLogsByUser } from "../utils/dynamodb";
 
 export const handler = async (event: any) => {
   try {
@@ -7,13 +7,7 @@ export const handler = async (event: any) => {
       event?.requestContext?.jwt?.claims?.username ||
       event?.requestContext?.authorizer?.jwt?.claims?.username;
 
-    // Check body has required items
-    if (!event.queryStringParameters.session_id) {
-      throw "Missing attribute session_id in query string";
-    }
-
-    let session_id = event.queryStringParameters.session_id;
-    let r = await getTeamsBySessionId(session_id);
+    let r = await getLogsByUser(userId);
 
     return {
       statusCode: 200,

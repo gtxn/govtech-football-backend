@@ -49,8 +49,6 @@ export const handler = async (event: any) => {
       }
     });
 
-    await createLog(`${userId} retrieved all session info`, userId);
-
     return {
       statusCode: 200,
       body: JSON.stringify({

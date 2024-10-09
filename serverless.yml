@@ -85,6 +85,13 @@ functions:
           path: /clearTeamsBySession
           method: post
           authorizer: cognitoAuthorizer
+  getLogs:
+    handler: functions/getLogsByUser.handler
+    events:
+      - httpApi:
+          path: /getLogs
+          method: get
+          authorizer: cognitoAuthorizer
 
 resources:
   Resources:

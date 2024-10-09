@@ -120,3 +120,21 @@ export const createLog = async (message: string, userId: string) => {
 
   return response;
 };
+
+export const getLogsByUser = async (userId: string) => {
+  const tablename = process.env.LOGS_DYNAMODB_TABLE;
+
+  let params = {
+    TableName: tablename,
+    ExpressionAttributeValues: {
+      ":u": {
+        S: userId,
+      },
+    },
+    FilterExpression: "user_id = :u",
+  };
+  const command = new ScanCommand(params);
+  const data = await docClient.send(command);
+
+  return data?.Items ? data.Items?.map((item) => unmarshall(item)) : [];
+};
