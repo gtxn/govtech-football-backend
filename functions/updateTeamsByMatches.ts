@@ -1,9 +1,13 @@
 import { Match2Player, Team } from "../schemas/teamSchema";
-import { putIntoTeamTable } from "../utils/dynamodb";
+import { createLog, putIntoTeamTable } from "../utils/dynamodb";
 import { updateTeamsBasedOnMatches } from "../utils/teamSorting";
 
 export const handler = async (event: any) => {
   try {
+    const userId =
+      event?.requestContext?.jwt?.claims?.username ||
+      event?.requestContext?.authorizer?.jwt?.claims?.username;
+
     // Check body has required items
     let body = JSON.parse(event.body);
     if (!body.teams) {
@@ -23,6 +27,11 @@ export const handler = async (event: any) => {
       updatedTeams.map(async (team: any) => {
         return await putIntoTeamTable(team);
       })
+    );
+
+    await createLog(
+      `${userId} entered matches ${matches} for session ${teams[0].session_id}`,
+      userId
     );
 
     return {

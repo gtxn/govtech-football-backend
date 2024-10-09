@@ -1,7 +1,11 @@
-import { clearTeamsFromTableBySessionId } from "../utils/dynamodb";
+import { clearTeamsFromTableBySessionId, createLog } from "../utils/dynamodb";
 
 export const handler = async (event: any) => {
   try {
+    const userId =
+      event?.requestContext?.jwt?.claims?.username ||
+      event?.requestContext?.authorizer?.jwt?.claims?.username;
+
     // Check body has required items
     let body = JSON.parse(event.body);
     if (!body.session_id) {
@@ -12,6 +16,8 @@ export const handler = async (event: any) => {
 
     // Delete teams
     let resp = await clearTeamsFromTableBySessionId(session_id);
+
+    await createLog(`${userId} cleared teams in session ${session_id}`, userId);
 
     return {
       statusCode: 200,

@@ -1,14 +1,24 @@
-import { getTeamsBySessionId } from "../utils/dynamodb";
+import { createLog, getTeamsBySessionId } from "../utils/dynamodb";
 
 export const handler = async (event: any) => {
   try {
+    // Get user information
+    const userId =
+      event?.requestContext?.jwt?.claims?.username ||
+      event?.requestContext?.authorizer?.jwt?.claims?.username;
+
     // Check body has required items
     if (!event.queryStringParameters.session_id) {
       throw "Missing attribute session_id in query string";
     }
 
-    let r = await getTeamsBySessionId(event.queryStringParameters.session_id);
-    console.log(r);
+    let session_id = event.queryStringParameters.session_id;
+    let r = await getTeamsBySessionId(session_id);
+
+    await createLog(
+      `${userId} retrieved teams from session ${session_id}`,
+      userId
+    );
 
     return {
       statusCode: 200,

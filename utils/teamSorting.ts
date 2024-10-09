@@ -29,8 +29,6 @@ export const updateTeamsBasedOnMatches = (
   let teamsObj = teamArrToTeamObj(teams);
   let teamsObjTmp = { ...teamsObj };
 
-  console.log(matches);
-
   // Go through each match and update the teams status accordingly
   matches.forEach(({ team1_name, team2_name, team1_goals, team2_goals }) => {
     // Update match data
@@ -68,8 +66,6 @@ export const updateTeamsBasedOnMatches = (
     }
   });
 
-  console.log(teamsObjTmp);
-
   // Convert object back to array
   return teamObjToTeamArray(teamsObjTmp);
 };
@@ -91,7 +87,6 @@ export const sortTeams = (teamsArr: Array<Team>) => {
         let teamBPoints = teamB.num_wins * 3 + teamB.num_draws;
 
         if (teamAPoints !== teamBPoints) {
-          console.log(teamBPoints, teamAPoints);
           return teamBPoints - teamAPoints;
         }
       }

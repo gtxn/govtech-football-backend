@@ -1,10 +1,14 @@
 import { v4 as uuidv4 } from "uuid";
 import { Team } from "../schemas/teamSchema";
-import { putIntoTeamTable } from "../utils/dynamodb";
+import { createLog, putIntoTeamTable } from "../utils/dynamodb";
 import { checkTeamsValid } from "../utils/teamValidity";
 
 export const handler = async (event: any) => {
   try {
+    const userId =
+      event?.requestContext?.jwt?.claims?.username ||
+      event?.requestContext?.authorizer?.jwt?.claims?.username;
+
     // Check body has required items
     let body = JSON.parse(event.body);
     if (!body.teamsToAdd) {
@@ -33,6 +37,13 @@ export const handler = async (event: any) => {
           sessionId
         )
       )
+    );
+
+    await createLog(
+      `${userId} created new session ${sessionId} with ${teamsToAdd
+        .map((team) => team.team_name)
+        .join(", ")}`,
+      userId
     );
 
     return {

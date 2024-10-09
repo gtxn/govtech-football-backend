@@ -11,8 +11,8 @@ export const handler = async (event: any) => {
     if (!body.team.session_id) {
       throw "Missing attribute session_id in team";
     }
-    if (!body.team.team_name) {
-      throw "Missing attribute team_name in team";
+    if (!body.team.team_id) {
+      throw "Missing attribute team_id in team";
     }
 
     // Put updated team into dynamodb table

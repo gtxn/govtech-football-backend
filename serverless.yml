@@ -11,7 +11,10 @@ provider:
       Action: "*"
       Resource: "*"
   environment:
-    TEAM_DYNAMODB_TABLE: teamsTable
+    TEAM_DYNAMODB_TABLE: govtechTeamsTable
+    LOGS_DYNAMODB_TABLE: govtechLogsTable
+  
+  # httpApi setup for cognito authorizer
   httpApi:
     cors: true
     authorizers:
@@ -24,7 +27,7 @@ provider:
           !GetAtt CognitoUserPool.Arn 
         audience:
           - !Ref CognitoUserPoolClient
-
+          
 functions:
   health:
     handler: functions/health.handler
@@ -54,6 +57,13 @@ functions:
           path: /updateTeamsByMatches
           method: post
           authorizer: cognitoAuthorizer
+  clearMatchesBySessionId:
+    handler: functions/clearMatches.handler
+    events:
+      - httpApi:
+          path: /clearMatchesBySessionId
+          method: post
+          authorizer: cognitoAuthorizer
   overwriteTeam:
     handler: functions/overwriteTeam.handler
     events:
@@ -81,7 +91,7 @@ resources:
     TeamsDynamoDbTable:
       Type: AWS::DynamoDB::Table
       Properties:
-        TableName: teamsTable
+        TableName: govtechTeamsTable
         BillingMode: PAY_PER_REQUEST
         AttributeDefinitions:
           - AttributeName: session_id
@@ -93,6 +103,18 @@ resources:
             KeyType: HASH
           - AttributeName: team_id
             KeyType: RANGE
+    
+    LogsDynamoDbTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: govtechLogsTable
+        BillingMode: PAY_PER_REQUEST
+        AttributeDefinitions:
+          - AttributeName: log_id
+            AttributeType: S
+        KeySchema:
+          - AttributeName: log_id
+            KeyType: HASH
 
     CognitoUserPool:
       Type: AWS::Cognito::UserPool

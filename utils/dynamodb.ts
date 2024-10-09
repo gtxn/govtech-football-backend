@@ -12,6 +12,7 @@ import { Team } from "../schemas/teamSchema";
 const client = new DynamoDBClient({});
 const docClient = DynamoDBDocumentClient.from(client);
 
+// Team table
 export const putIntoTeamTable = async (teamItem: Team, sessionId?: string) => {
   const tablename = process.env.TEAM_DYNAMODB_TABLE;
 
@@ -76,4 +77,25 @@ export const clearTeamsFromTableBySessionId = async (session_id: string) => {
   );
 
   return r;
+};
+
+// Log table
+export const createLog = async (message: string, userId: string) => {
+  const tablename = process.env.LOGS_DYNAMODB_TABLE;
+
+  let params = {
+    TableName: tablename,
+    Item: {
+      log_id: uuidv4(),
+      message,
+      user_id: userId,
+      date_created: new Date().getTime(),
+    },
+  };
+
+  const command = new PutCommand(params);
+
+  const response = await docClient.send(command);
+
+  return response;
 };
