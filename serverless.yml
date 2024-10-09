@@ -64,12 +64,12 @@ functions:
           path: /clearMatchesBySessionId
           method: post
           authorizer: cognitoAuthorizer
-  overwriteTeam:
-    handler: functions/overwriteTeam.handler
+  getAllSessionInfo:
+    handler: functions/getAllSessionInfo.handler
     events:
       - httpApi:
-          path: /overwriteTeam
-          method: post
+          path: /getAllSessionInfo
+          method: get
           authorizer: cognitoAuthorizer
   getTeamsBySessionId:
     handler: functions/getTeamsBySession.handler

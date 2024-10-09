@@ -29,6 +29,7 @@ export const handler = async (event: any) => {
           team_name: team.team_name,
           group_number: team.group_number,
           date_registered: team.date_registered,
+          created_at: team.created_at,
         })
       )
     );

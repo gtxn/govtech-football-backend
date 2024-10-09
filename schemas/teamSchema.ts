@@ -4,6 +4,8 @@ export interface Team {
   team_name: string;
   date_registered: number;
   group_number: number;
+  created_at?: number;
+  last_modified_at?: number;
   num_wins?: number;
   num_losses?: number;
   num_draws?: number;

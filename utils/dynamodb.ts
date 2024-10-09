@@ -1,4 +1,8 @@
-import { DynamoDBClient, QueryCommand } from "@aws-sdk/client-dynamodb";
+import {
+  DynamoDBClient,
+  QueryCommand,
+  ScanCommand,
+} from "@aws-sdk/client-dynamodb";
 import {
   PutCommand,
   DynamoDBDocumentClient,
@@ -20,13 +24,16 @@ export const putIntoTeamTable = async (teamItem: Team, sessionId?: string) => {
     TableName: tablename,
     Item: {
       ...teamItem,
+      last_modified_at: new Date().getTime(),
     },
   };
 
+  // If team is newly created
   if (sessionId) {
     params.Item = {
       ...params.Item,
       session_id: sessionId,
+      created_at: new Date().getTime(),
     };
   }
   if (!teamItem?.team_id) {
@@ -77,6 +84,20 @@ export const clearTeamsFromTableBySessionId = async (session_id: string) => {
   );
 
   return r;
+};
+
+export const getAllSessionInfo = async () => {
+  const tablename = process.env.TEAM_DYNAMODB_TABLE;
+
+  let params = {
+    TableName: tablename,
+    ProjectionExpression:
+      "session_id, team_id, team_name, created_at, last_modified_at",
+  };
+  const command = new ScanCommand(params);
+  const data = await docClient.send(command);
+
+  return data?.Items ? data.Items?.map((item) => unmarshall(item)) : [];
 };
 
 // Log table

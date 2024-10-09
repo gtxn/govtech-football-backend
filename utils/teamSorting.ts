@@ -1,4 +1,4 @@
-import { Match2Player, Team } from "../schemas/teamSchema";
+import { Match, Match2Player, Team } from "../schemas/teamSchema";
 
 const teamArrToTeamObj = (teams: Array<Team>) => {
   let teamsObj: any = {};
@@ -21,10 +21,28 @@ const teamObjToTeamArray = (teams: any) => {
   return Object.values(teams);
 };
 
+const checkMatchesValid = (
+  teams: Array<Team>,
+  matches: Array<Match2Player>
+) => {
+  let teamNames = teams.map((team: Team) => team.team_name);
+  matches.forEach(({ team1_name, team2_name, team1_goals, team2_goals }) => {
+    if (!teamNames.includes(team1_name)) {
+      throw `${team1_name} is included in matches but is not a team in this session`;
+    }
+    if (!teamNames.includes(team2_name)) {
+      throw `${team2_name} is included in matches but is not a team in this session`;
+    }
+  });
+};
+
 export const updateTeamsBasedOnMatches = (
   teams: Array<Team>,
   matches: Array<Match2Player>
 ) => {
+  // Check matches are valid
+  checkMatchesValid(teams, matches);
+
   // Convert array to an object for more efficient algorithm
   let teamsObj = teamArrToTeamObj(teams);
   let teamsObjTmp = { ...teamsObj };
