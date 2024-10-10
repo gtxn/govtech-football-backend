@@ -30,7 +30,9 @@ export const handler = async (event: any) => {
     );
 
     await createLog(
-      `${userId} entered matches ${matches} for session ${teams[0].session_id}`,
+      `${userId} edited matches ${matches
+        .map((match) => `${match.team1_name} vs ${match.team2_name}`)
+        .join(" | ")} for session ${teams[0].session_id}`,
       userId
     );
 
