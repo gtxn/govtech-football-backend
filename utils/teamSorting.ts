@@ -26,12 +26,37 @@ const checkMatchesValid = (
   matches: Array<Match2Player>
 ) => {
   let teamNames = teams.map((team: Team) => team.team_name);
+  let teamsObj = teamArrToTeamObj(teams);
+  let pastMatches: Set<string> = new Set([]);
+
   matches.forEach(({ team1_name, team2_name, team1_goals, team2_goals }) => {
+    // Team names provided for matches are not valid teams
     if (!teamNames.includes(team1_name)) {
       throw `${team1_name} is included in matches but is not a team in this session`;
     }
     if (!teamNames.includes(team2_name)) {
       throw `${team2_name} is included in matches but is not a team in this session`;
+    }
+
+    // Teams provided in matches are not in the same group
+    if (
+      teamsObj[team1_name].group_number !== teamsObj[team2_name].group_number
+    ) {
+      throw `${team1_name} and ${team2_name} are not in the same group. They cannot play a match against each other.`;
+    }
+
+    // Matches are duplicated
+    if (pastMatches.has(`${team1_name} ${team2_name}`)) {
+      throw `${team1_name} vs ${team2_name} are a duplicated match`;
+    } else {
+      // Add both possible permutations of matching
+      pastMatches.add(`${team1_name} ${team2_name}`);
+      pastMatches.add(`${team2_name} ${team1_name}`);
+    }
+
+    // Check that goals are positive
+    if (team1_goals < 0 || team2_goals < 0) {
+      throw "Number of goals cannot be negative";
     }
   });
 };
